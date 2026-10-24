@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// 御朱印写真（goshuin/{uid}/...）とプロフィール画像（avatars/{uid}/...）
+// 本人のみ読み書き可。8MB 以下の画像のみ許可。
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function validImage() {
+      return request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /goshuin/{uid}/{fileName} {
+      allow read: if isSelf(uid);
+      allow write: if isSelf(uid) && validImage();
+      allow delete: if isSelf(uid);
+    }
+
+    match /avatars/{uid}/{fileName} {
+      allow read: if isSelf(uid);
+      allow write: if isSelf(uid) && validImage();
+      allow delete: if isSelf(uid);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

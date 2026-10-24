@@ -1,0 +1,57 @@
+rules_version = '2';
+
+// 神旅帳 MVP セキュリティルール
+// 方針: 自分のデータのみ読み書き可能。神社マスタは全員読み取り可・書き込み不可。
+//       訪問数の集計（visit_count の +1）だけは本人のチェックイン時に許可する。
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // users/{uid}
+    match /users/{uid} {
+      allow read: if isSelf(uid);
+      allow create: if isSelf(uid) && request.resource.data.uid == uid;
+      allow update: if isSelf(uid) && request.resource.data.uid == uid;
+      allow delete: if false;
+    }
+
+    // shrines/{shrineId}（マスタ。投入は Admin SDK / コンソールから）
+    match /shrines/{shrineId} {
+      allow read: if true;
+      allow create, delete: if false;
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visit_count'])
+        && request.resource.data.visit_count == resource.data.visit_count + 1;
+    }
+
+    // visit_history/{visitId}
+    match /visit_history/{visitId} {
+      allow read: if signedIn() && resource.data.user_id == request.auth.uid;
+      allow create: if signedIn()
+        && request.resource.data.user_id == request.auth.uid
+        && request.resource.data.distance_m is number
+        && request.resource.data.distance_m <= 300;
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.user_id == request.auth.uid;
+    }
+
+    // goshuin/{goshuinId}
+    match /goshuin/{goshuinId} {
+      allow read: if signedIn() && resource.data.user_id == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update: if signedIn() && resource.data.user_id == request.auth.uid;
+      allow delete: if signedIn() && resource.data.user_id == request.auth.uid;
+    }
+
+    // その他は全拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
