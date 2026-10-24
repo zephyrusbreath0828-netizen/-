@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 320" width="512" height="320" role="img" aria-label="静岡浅間神社">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#2f4058"/><stop offset="100%" stop-color="#7d93ad"/>
+</linearGradient>
+<pattern id="m" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(77)">
+<rect width="10" height="10" fill="none"/><path d="M0 0h10M0 5h10" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+</pattern>
+</defs>
+<rect width="512" height="320" fill="url(#g)"/>
+<rect width="512" height="320" fill="url(#m)"/>
+<g fill="#ffffff" fill-opacity="0.22">
+<path d="M116 118h280v14H116z"/>
+<path d="M132 146h248v10H132z"/>
+<path d="M148 190h216v12H148z"/>
+<path d="M162 132h20v112h-20z"/>
+<path d="M330 132h20v112h-20z"/>
+<path d="M246 156h20v34h-20z"/>
+</g>
+<rect y="288" width="512" height="32" fill="#000000" fill-opacity="0.14"/>
+</svg>
